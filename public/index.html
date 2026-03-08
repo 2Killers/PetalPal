@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PetalPal</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <header>
+    <h1>PetalPal</h1>
+    <p>A social mood garden where emotions bloom into flowers.</p>
+  </header>
+
+  <main>
+    <div class="game-layout">
+      <div class="left-panel">
+        <section id="authSection">
+          <h2>Welcome to PetalPal</h2>
+
+          <div id="userPickerBlock">
+            <h3>Choose Your Profile</h3>
+            <div id="userList"></div>
+          </div>
+
+          <div id="signupSection">
+            <h3>Create New Profile</h3>
+
+            <input
+              id="newUserName"
+              type="text"
+              placeholder="Enter your name"
+            />
+
+            <select id="newUserAvatar">
+              <option value="🦋">🦋 Butterfly</option>
+              <option value="🐝">🐝 Bee</option>
+              <option value="🐦">🐦 Bird</option>
+            </select>
+
+            <button id="createUserBtn">Sign Up</button>
+          </div>
+        </section>
+
+        <section id="currentProfileSection">
+          <h2>Current Profile</h2>
+          <p id="currentProfileText">Not selected</p>
+        </section>
+
+        <section class="checkin-section">
+          <h2>Daily Check-In</h2>
+
+          <textarea
+            id="eventInput"
+            placeholder="What happened today?"
+          ></textarea>
+
+          <div class="mood-section">
+            <p>How are you feeling today?</p>
+            <select id="moodSelect">
+              <option value="">Choose your mood</option>
+              <option value="happy">Happy</option>
+              <option value="calm">Calm</option>
+              <option value="tired">Tired</option>
+              <option value="sad">Sad</option>
+              <option value="stressed">Stressed</option>
+            </select>
+          </div>
+
+          <button id="submitBtn">Bloom</button>
+        </section>
+
+        <section id="visitorSection">
+          <h2>Choose Your Garden Form</h2>
+          <div id="visitorChoices">
+            <button class="visitor-choice" data-avatar="🐦">🐦 Bird</button>
+            <button class="visitor-choice" data-avatar="🐝">🐝 Bee</button>
+            <button class="visitor-choice" data-avatar="🦋">🦋 Butterfly</button>
+          </div>
+          <p id="selectedVisitorText">Current form: 🦋</p>
+        </section>
+
+        <section id="friendManageSection">
+          <h2>Manage Friends</h2>
+
+          <select id="addFriendSelect">
+            <option value="">Choose a user</option>
+          </select>
+
+          <button id="addFriendBtn">Add Friend</button>
+        </section>
+
+        <section id="friendsListSection">
+          <h2>Friends</h2>
+          <div id="friendsList"></div>
+        </section>
+
+        <section id="friendSection">
+          <h2>Garden Visiting</h2>
+          <button id="backMyGardenBtn">Back to My Garden</button>
+        </section>
+
+        <section id="visitRecordsSection">
+          <h2>Visitor Records</h2>
+          <div id="visitRecords"></div>
+        </section>
+
+        <section id="friendInfo" style="display: none;">
+          <h2>Friend Status</h2>
+          <p id="friendMood">Mood: Unknown</p>
+          <p id="friendTodayFlower">Today's flower: None</p>
+        </section>
+
+        <section id="todayFlower">
+          <h2>Today's Flower</h2>
+        </section>
+      </div>
+
+      <div class="right-panel">
+        <h2 class="garden-title" id="gardenTitle">Your Garden</h2>
+        <div id="garden"></div>
+      </div>
+    </div>
+  </main>
+
+  <script src="/visitors.js"></script>
+  <script src="/friends.js"></script>
+  <script src="/renderGarden.js"></script>
+  <script src="/interactions.js"></script>
+  <script src="/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,551 @@
+body {
+  font-family: "Trebuchet MS", Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  color: #3d352e;
+  background: linear-gradient(to bottom, #dff3ff 0%, #f6fbe7 45%, #d7efc2 100%);
+  min-height: 100vh;
+}
+
+header {
+  text-align: center;
+  padding: 28px 20px 10px;
+}
+
+header h1 {
+  font-size: clamp(2.2rem, 4vw, 3rem);
+  margin-bottom: 10px;
+  color: #5b3f2f;
+}
+
+header p {
+  font-size: clamp(1rem, 2vw, 1.1rem);
+  color: #6c5a4d;
+}
+
+main {
+  width: min(1180px, 100%);
+  margin: 0 auto;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.game-layout {
+  display: grid;
+  grid-template-columns: minmax(260px, 320px) minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+
+.left-panel {
+  position: sticky;
+  top: 20px;
+  min-width: 0;
+}
+
+.right-panel {
+  min-height: 700px;
+  min-width: 0;
+}
+
+.garden-title {
+  margin-top: 10px;
+  margin-bottom: 18px;
+  font-size: clamp(1.7rem, 3vw, 2rem);
+  color: #5b3f2f;
+}
+
+section {
+  border-radius: 24px;
+  padding: 20px;
+  margin-bottom: 24px;
+  box-sizing: border-box;
+}
+
+.checkin-section {
+  background: rgba(255, 248, 240, 0.92);
+  box-shadow: 0 8px 24px rgba(95, 74, 52, 0.12);
+  border: 2px solid rgba(255, 255, 255, 0.7);
+}
+
+#authSection,
+#currentProfileSection,
+#friendManageSection,
+#visitorSection,
+#todayFlower,
+#friendSection,
+#friendInfo,
+#flowerActions,
+#friendsListSection,
+#visitRecordsSection {
+  background: rgba(255, 255, 255, 0.75);
+  box-shadow: 0 8px 24px rgba(95, 74, 52, 0.1);
+}
+
+#authSection h3,
+#signupSection h3 {
+  margin-top: 0;
+  color: #5b3f2f;
+}
+
+#userPickerBlock {
+  margin-bottom: 18px;
+}
+
+#userList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+#userList button {
+  margin: 0;
+}
+
+#signupSection {
+  margin-top: 8px;
+  padding-top: 8px;
+}
+
+#currentProfileText {
+  margin-top: 8px;
+  font-weight: bold;
+  color: #5b3f2f;
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+textarea,
+select,
+input {
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 10px;
+  margin-bottom: 14px;
+  padding: 14px;
+  font-size: 16px;
+  border-radius: 16px;
+  border: 2px solid #d8cabd;
+  background: rgba(255, 255, 255, 0.92);
+  color: #4b372a;
+}
+
+textarea {
+  min-height: 110px;
+  resize: vertical;
+}
+
+button {
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  padding: 14px;
+  font-size: 18px;
+  border-radius: 18px;
+  border: none;
+  background: linear-gradient(to right, #b8e39f, #d6f0b4);
+  color: #4b372a;
+  cursor: pointer;
+  font-weight: bold;
+  box-shadow: 0 4px 10px rgba(91, 132, 67, 0.18);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px rgba(91, 132, 67, 0.22);
+}
+
+button:active {
+  transform: translateY(0);
+}
+
+#selectedVisitorText {
+  margin-top: 8px;
+  font-weight: bold;
+  color: #5b3f2f;
+}
+
+#visitorChoices {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+#visitorChoices button {
+  flex: 1;
+  min-width: 90px;
+}
+
+.visitor-choice.active {
+  outline: 3px solid #8ecf6f;
+}
+
+#todayFlower {
+  min-height: 140px;
+}
+
+#garden {
+  width: 100%;
+  min-height: 760px;
+  border-radius: 32px;
+  padding: 30px;
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+  background: linear-gradient(
+    to bottom,
+    #cfeeff 0%,
+    #dff5ff 52%,
+    #bfe3a2 52%,
+    #8dcb6e 100%
+  );
+  border: 3px solid rgba(255, 255, 255, 0.45);
+  box-shadow: inset 0 8px 24px rgba(255, 255, 255, 0.3);
+}
+
+.flower-card {
+  position: absolute;
+  width: 100px;
+  height: 120px;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.flower-shadow {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  width: 42px;
+  height: 14px;
+  background: rgba(80, 110, 60, 0.22);
+  border-radius: 50%;
+  transform: translateX(-50%);
+  filter: blur(3px);
+}
+
+.flower-emoji {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 4.2rem;
+  line-height: 1;
+  filter: drop-shadow(0 6px 6px rgba(0, 0, 0, 0.18));
+}
+
+.flower-tooltip {
+  display: none;
+  position: absolute;
+  bottom: 105px;
+  width: min(220px, calc(100vw - 48px));
+  max-width: 220px;
+  background: rgba(255, 255, 255, 0.96);
+  color: #4b372a;
+  padding: 12px 14px;
+  border-radius: 18px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+  font-size: 13px;
+  z-index: 20;
+  text-align: left;
+  box-sizing: border-box;
+}
+
+.flower-tooltip p {
+  margin: 4px 0;
+  line-height: 1.35;
+  word-break: break-word;
+}
+
+.flower-card:hover .own-tooltip {
+  display: block;
+}
+
+.flower-card.active .friend-tooltip {
+  display: block;
+}
+
+.flower-tooltip::after {
+  content: "";
+  position: absolute;
+  bottom: -10px;
+  border-width: 10px 10px 0 10px;
+  border-style: solid;
+  border-color: rgba(255, 255, 255, 0.96) transparent transparent transparent;
+}
+
+.flower-tooltip.tooltip-right::after {
+  left: 28px;
+}
+
+.flower-tooltip.tooltip-left::after {
+  right: 28px;
+}
+
+.flower-actions-inline {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.flower-actions-inline button {
+  width: 100%;
+  margin: 0;
+  padding: 10px 12px;
+  font-size: 14px;
+  border-radius: 12px;
+}
+
+#avatar {
+  position: absolute;
+  font-size: 2.2rem;
+  z-index: 30;
+  pointer-events: none;
+  transition: left 0.18s linear, top 0.18s linear;
+}
+
+.host-visitor,
+.remote-visitor-avatar {
+  position: absolute;
+  font-size: 2.2rem;
+  z-index: 25;
+  pointer-events: none;
+}
+
+.friend-mode .checkin-section,
+.friend-mode #todayFlower {
+  display: none;
+}
+
+.friend-mode #friendInfo,
+.friend-mode #flowerActions {
+  display: block;
+}
+
+.hosted-mode #friendInfo {
+  display: none;
+}
+
+.hosted-mode #flowerActions {
+  display: block;
+}
+
+#flowerActions button {
+  width: 100%;
+}
+
+.today-flower-card {
+  background: rgba(255, 255, 255, 0.88);
+  border-radius: 18px;
+  padding: 16px;
+  margin-top: 10px;
+}
+
+.today-flower-card p {
+  margin: 6px 0;
+}
+
+.today-flower-emoji {
+  font-size: 3.5rem;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.today-actions {
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.today-actions button {
+  margin: 0;
+}
+
+.empty-message {
+  color: #6c5a4d;
+  margin-top: 10px;
+}
+
+#friendsList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 320px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.friend-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.friend-name {
+  font-weight: bold;
+  color: #5b3f2f;
+  line-height: 1.3;
+}
+
+.friend-open-btn {
+  width: auto;
+  margin: 0;
+  padding: 8px 14px;
+  font-size: 14px;
+  border-radius: 12px;
+  flex-shrink: 0;
+}
+
+#friendsList::-webkit-scrollbar {
+  width: 8px;
+}
+
+#friendsList::-webkit-scrollbar-thumb {
+  background: rgba(141, 203, 110, 0.55);
+  border-radius: 99px;
+}
+
+#friendsList::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.visit-record-item {
+  background: rgba(255, 255, 255, 0.88);
+  border-radius: 14px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+}
+
+.visit-record-item p {
+  margin: 4px 0;
+  font-size: 14px;
+  word-break: break-word;
+}
+
+@media (max-width: 1400px) {
+  .game-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .left-panel {
+    position: static;
+  }
+
+  .right-panel {
+    min-height: auto;
+  }
+
+  #garden {
+    min-height: 760px;
+  }
+}
+
+@media (max-width: 900px) {
+  main {
+    padding: 16px;
+  }
+
+  section {
+    padding: 18px;
+  }
+
+  #garden {
+    min-height: 760px;
+    padding: 22px;
+  }
+
+  .flower-card {
+    width: 90px;
+    height: 110px;
+  }
+
+  .flower-emoji {
+    font-size: 3.6rem;
+  }
+}
+
+@media (max-width: 640px) {
+  main {
+    padding: 14px;
+  }
+
+  header {
+    padding: 22px 16px 8px;
+  }
+
+  .garden-title {
+    font-size: 1.7rem;
+  }
+
+  section {
+    padding: 16px;
+    border-radius: 20px;
+  }
+
+  button {
+    font-size: 16px;
+    padding: 12px;
+  }
+
+  .flower-tooltip {
+    width: min(190px, calc(100vw - 36px));
+    max-width: 190px;
+    font-size: 12px;
+  }
+
+  .today-flower-emoji {
+    font-size: 3rem;
+  }
+
+  #garden {
+    min-height: 760px;
+    padding: 18px;
+  }
+
+  .flower-card {
+    width: 82px;
+    height: 100px;
+  }
+
+  .flower-emoji {
+    font-size: 3.1rem;
+  }
+
+  #avatar,
+  .host-visitor,
+  .remote-visitor-avatar {
+    font-size: 2rem;
+  }
+}
+
+@media (max-width: 420px) {
+  main {
+    padding: 10px;
+  }
+
+  section {
+    padding: 14px;
+  }
+
+  #garden {
+    min-height: 760px;
+    padding: 14px;
+    border-radius: 24px;
+  }
+
+  .flower-tooltip {
+    width: min(170px, calc(100vw - 28px));
+    max-width: 170px;
+  }
+}
