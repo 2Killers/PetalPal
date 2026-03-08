@@ -13,3 +13,11 @@ function setVisitorAvatar(avatar) {
 function getSelectedVisitorAvatar() {
   return selectedVisitorAvatar;
 }
+
+if (typeof module !== "undefined") {
+  module.exports = {
+    getRandomVisitor,
+    setVisitorAvatar,
+    getSelectedVisitorAvatar
+  };
+}

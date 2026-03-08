@@ -1,7 +1,17 @@
 const BASE_GARDEN_WIDTH = 700;
 const BASE_GARDEN_HEIGHT = 760;
-const BASE_FLOWER_WIDTH = 100;
-const BASE_FLOWER_HEIGHT = 120;
+const BASE_FLOWER_WIDTH = 150;
+const BASE_FLOWER_HEIGHT = 180;
+const flowerPositionCache = new Map();
+
+const flowerMap = {
+  happy: "/assets/sunflower.png",
+  calm: "/assets/blue.png",
+  tired: "/assets/purple.png",
+  sad: "/assets/tulip.png",
+  stressed: "/assets/pink.png",
+  default: "/assets/pink.png"
+};
 
 function clamp(value, min, max) {
   return Math.max(min, Math.min(max, value));
@@ -12,23 +22,23 @@ function getResponsiveFlowerSize() {
 
   if (viewportWidth <= 640) {
     return {
-      width: 82,
-      height: 100,
+      width: 125,
+      height: 150,
       tooltipWidth: 190
     };
   }
 
   if (viewportWidth <= 900) {
     return {
-      width: 90,
-      height: 110,
+      width: 145,
+      height: 175,
       tooltipWidth: 220
     };
   }
 
   return {
-    width: BASE_FLOWER_WIDTH,
-    height: BASE_FLOWER_HEIGHT,
+    width: 170,
+    height: 205,
     tooltipWidth: 220
   };
 }
@@ -65,17 +75,200 @@ function getGardenMetrics(gardenDiv) {
   };
 }
 
+// 只允许花出现在图片下方 2/3 的区域里
+function getGrassBounds(metrics, flowerSize) {
+  const leftPadding = 24;
+  const rightPadding = 24;
+  const topPadding = 18;
+  const bottomPadding = 26;
+
+  const topMin = Math.round(metrics.innerHeight / 3); // 从 1/3 高度以下开始
+  const topMax = Math.round(
+    metrics.innerHeight - flowerSize.height - bottomPadding
+  );
+
+  return {
+    leftMin: leftPadding,
+    leftMax: Math.max(
+      leftPadding,
+      metrics.innerWidth - flowerSize.width - rightPadding
+    ),
+    topMin: Math.max(topPadding, topMin),
+    topMax: Math.max(Math.max(topPadding, topMin), topMax)
+  };
+}
+
+function boxesOverlap(a, b, flowerSize) {
+  const horizontalGap = flowerSize.width * 0.78;
+  const verticalGap = flowerSize.height * 0.72;
+
+  return !(
+    a.left + horizontalGap <= b.left ||
+    b.left + horizontalGap <= a.left ||
+    a.top + verticalGap <= b.top ||
+    b.top + verticalGap <= a.top
+  );
+}
+
+// 用 flower.id 生成稳定随机数，这样同一朵花每次位置都固定
+function seededRandom(seed) {
+  let x = Math.sin(seed) * 10000;
+  return x - Math.floor(x);
+}
+
+function getFlowerSeed(flower, fallbackIndex = 0) {
+  const raw = String(flower?.id ?? fallbackIndex + 1);
+  let hash = 0;
+  for (let i = 0; i < raw.length; i++) {
+    hash = (hash * 31 + raw.charCodeAt(i)) >>> 0;
+  }
+  return hash || fallbackIndex + 1;
+}
+
+function isPositionInsideBounds(position, bounds) {
+  return (
+    typeof position.left === "number" &&
+    typeof position.top === "number" &&
+    position.left >= bounds.leftMin &&
+    position.left <= bounds.leftMax &&
+    position.top >= bounds.topMin &&
+    position.top <= bounds.topMax
+  );
+}
+
+function generateStableFlowerPosition(flower, existingFlowers = [], fallbackIndex = 0) {
+  const baseMetrics = {
+    innerWidth: BASE_GARDEN_WIDTH,
+    innerHeight: BASE_GARDEN_HEIGHT
+  };
+
+  const baseFlowerSize = {
+    width: BASE_FLOWER_WIDTH,
+    height: BASE_FLOWER_HEIGHT
+  };
+
+  const bounds = getGrassBounds(baseMetrics, baseFlowerSize);
+  const seedBase = getFlowerSeed(flower, fallbackIndex);
+
+  for (let attempt = 0; attempt < 800; attempt++) {
+    const randX = seededRandom(seedBase + attempt * 17.371);
+    const randY = seededRandom(seedBase + attempt * 41.913);
+
+    const candidate = {
+      left: Math.round(
+        bounds.leftMin + randX * (bounds.leftMax - bounds.leftMin)
+      ),
+      top: Math.round(
+        bounds.topMin + randY * (bounds.topMax - bounds.topMin)
+      )
+    };
+
+    const overlapsExisting = existingFlowers.some((placedFlower) =>
+      boxesOverlap(candidate, placedFlower, baseFlowerSize)
+    );
+
+    if (!overlapsExisting) {
+      return candidate;
+    }
+  }
+
+  return {
+    left: bounds.leftMin,
+    top: bounds.topMin
+  };
+}
+
+function prepareFlowersOnce(flowers) {
+  if (!Array.isArray(flowers)) return [];
+
+  const positionedFlowers = [];
+  const baseBounds = getGrassBounds(
+    {
+      innerWidth: BASE_GARDEN_WIDTH,
+      innerHeight: BASE_GARDEN_HEIGHT
+    },
+    {
+      width: BASE_FLOWER_WIDTH,
+      height: BASE_FLOWER_HEIGHT
+    }
+  );
+
+  const currentIds = new Set(flowers.map((flower) => flower.id));
+
+  for (const cachedId of flowerPositionCache.keys()) {
+    if (!currentIds.has(cachedId)) {
+      flowerPositionCache.delete(cachedId);
+    }
+  }
+
+  return flowers.map((flower, index) => {
+    const cachedPosition = flowerPositionCache.get(flower.id);
+
+    const currentPosition = cachedPosition || {
+      left: flower.left,
+      top: flower.top
+    };
+
+    const hasValidPosition =
+      isPositionInsideBounds(currentPosition, baseBounds) &&
+      !positionedFlowers.some((placedFlower) =>
+        boxesOverlap(currentPosition, placedFlower, {
+          width: BASE_FLOWER_WIDTH,
+          height: BASE_FLOWER_HEIGHT
+        })
+      );
+
+    if (hasValidPosition) {
+      const fixedFlower = {
+        ...flower,
+        left: Math.round(currentPosition.left),
+        top: Math.round(currentPosition.top)
+      };
+
+      flowerPositionCache.set(flower.id, {
+        left: fixedFlower.left,
+        top: fixedFlower.top
+      });
+
+      positionedFlowers.push(fixedFlower);
+      return fixedFlower;
+    }
+
+    const stablePosition = generateStableFlowerPosition(
+      flower,
+      positionedFlowers,
+      index
+    );
+
+    const updatedFlower = {
+      ...flower,
+      left: stablePosition.left,
+      top: stablePosition.top
+    };
+
+    flowerPositionCache.set(flower.id, {
+      left: updatedFlower.left,
+      top: updatedFlower.top
+    });
+
+    positionedFlowers.push(updatedFlower);
+    return updatedFlower;
+  });
+}
+
 function getScaledFlowerPosition(flower, metrics, flowerSize) {
+  const bounds = getGrassBounds(metrics, flowerSize);
+
   const scaledLeft = clamp(
-    (flower.left || 0) * metrics.scaleX,
-    0,
-    Math.max(0, metrics.innerWidth - flowerSize.width)
+    flower.left * metrics.scaleX,
+    bounds.leftMin,
+    bounds.leftMax
   );
 
   const scaledTop = clamp(
-    (flower.top || 0) * metrics.scaleY,
-    0,
-    Math.max(0, metrics.innerHeight - flowerSize.height)
+    flower.top * metrics.scaleY,
+    bounds.topMin,
+    bounds.topMax
   );
 
   return {
@@ -100,45 +293,81 @@ function getScaledVisitorPosition(visitor, metrics) {
   return { x, y };
 }
 
-function renderRemoteVisitors(gardenDiv) {
-  if (viewMode !== "friend") {
-    return;
-  }
+function getFlowerImage(flower) {
+  const mood = (flower.mood || "").toLowerCase();
+  return flowerMap[mood] || flowerMap.default;
+}
 
-  if (!currentViewedGardenData || !currentViewedGardenData.activeVisitors) {
-    return;
-  }
+function renderDecorations() {
+  const layer = document.getElementById("decoration-layer");
+  if (!layer) return;
+
+  layer.innerHTML = "";
+
+  const items = [
+    { left: "5%", bottom: "6%", width: 170, height: 120, img: "/assets/decoration1.JPEG" },
+    { left: "22%", bottom: "8%", width: 180, height: 125, img: "/assets/decoration2.JPEG" },
+    { left: "42%", bottom: "7%", width: 175, height: 120, img: "/assets/decoration3.JPEG" },
+    { left: "62%", bottom: "8%", width: 170, height: 118, img: "/assets/decoration1.JPEG" },
+    { left: "78%", bottom: "6%", width: 175, height: 120, img: "/assets/decoration2.JPEG" }
+  ];
+
+  items.forEach((item) => {
+    const el = document.createElement("div");
+    el.style.position = "absolute";
+    el.style.left = item.left;
+    el.style.bottom = item.bottom;
+    el.style.width = `${item.width}px`;
+    el.style.height = `${item.height}px`;
+    el.style.backgroundImage = `url("${item.img}")`;
+    el.style.backgroundSize = "contain";
+    el.style.backgroundRepeat = "no-repeat";
+    el.style.backgroundPosition = "bottom center";
+    el.style.mixBlendMode = "multiply";
+    el.style.opacity = "0.95";
+    el.style.pointerEvents = "none";
+    layer.appendChild(el);
+  });
+}
+
+function renderRemoteVisitors(gardenDiv, metrics) {
+  if (viewMode !== "friend") return;
+  if (!currentViewedGardenData || !currentViewedGardenData.activeVisitors) return;
 
   const visitors = currentViewedGardenData.activeVisitors;
 
   visitors.forEach((visitor) => {
-    if (visitor.visitorId === getCurrentUserId()) {
-      return;
-    }
+    if (visitor.visitorId === getCurrentUserId()) return;
 
     const visitorEl = document.createElement("div");
     visitorEl.className = "remote-visitor-avatar";
     visitorEl.textContent = visitor.avatar || "🦋";
-    visitorEl.style.left = `${visitor.x}px`;
-    visitorEl.style.top = `${visitor.y}px`;
-    visitorEl.title = `${visitor.name || "Visitor"} is visiting`;
 
+    const position = getScaledVisitorPosition(visitor, metrics);
+    visitorEl.style.left = `${position.x}px`;
+    visitorEl.style.top = `${position.y}px`;
+
+    visitorEl.title = `${visitor.name || "Visitor"} is visiting`;
     gardenDiv.appendChild(visitorEl);
   });
 }
 
 function renderGarden() {
   const gardenDiv = document.getElementById("garden");
-  if (!gardenDiv) {
-    return;
-  }
+  if (!gardenDiv) return;
 
   gardenDiv.innerHTML = "";
 
   const metrics = getGardenMetrics(gardenDiv);
   const flowerSize = getResponsiveFlowerSize();
 
-  currentGardenView.forEach((flower, index) => {
+  currentGardenView = prepareFlowersOnce(
+    Array.isArray(currentGardenView) ? currentGardenView : []
+  );
+
+  const flowersToRender = currentGardenView;
+
+  flowersToRender.forEach((flower, index) => {
     const card = document.createElement("div");
     card.className = "flower-card";
     card.dataset.id = flower.id;
@@ -151,17 +380,24 @@ function renderGarden() {
 
     card.innerHTML = `
       <div class="flower-shadow"></div>
-      <div class="flower-emoji">${flower.img}</div>
+
+      <div
+        class="flower-img"
+        style="
+          width: ${flowerSize.width}px;
+          height: ${flowerSize.height}px;
+          background-image: url('${getFlowerImage(flower)}');
+        "
+      ></div>
 
       <div class="flower-tooltip ${friendMode ? "friend-tooltip" : "own-tooltip"}">
-        <p><strong>${flower.name}</strong></p>
-        <p>Flower meaning: ${flower.meaning}</p>
-        <p>Mood: ${flower.mood}</p>
-        <p>Date: ${flower.date}</p>
+        <p><strong>${flower.name || "Flower"}</strong></p>
+        <p>Flower meaning: ${flower.meaning || "Unknown"}</p>
+        <p>Mood: ${flower.mood || "Unknown"}</p>
+        <p>Date: ${flower.date || "Unknown"}</p>
         <p>Event: ${flower.event || "No event recorded"}</p>
         <p>Support: ${flower.supportCount || 0}</p>
         <p>Message: ${latestMessage}</p>
-
         ${
           friendMode
             ? `
@@ -176,8 +412,13 @@ function renderGarden() {
     `;
 
     const position = getScaledFlowerPosition(flower, metrics, flowerSize);
+
+    card.style.position = "absolute";
     card.style.left = `${position.left}px`;
     card.style.top = `${position.top}px`;
+    card.style.width = `${flowerSize.width}px`;
+    card.style.height = `${flowerSize.height + 30}px`;
+    card.style.zIndex = String(100 + Math.round(position.top));
 
     const tooltip = card.querySelector(".flower-tooltip");
     const tooltipOffset = 18;
@@ -208,13 +449,21 @@ function renderGarden() {
 
   renderRemoteVisitors(gardenDiv, metrics);
 
-  if (friendMode && avatarEl) {
+  if (friendMode) {
+  if (typeof createVisitorAvatar === "function") {
+    createVisitorAvatar();
+  } else if (avatarEl) {
     gardenDiv.appendChild(avatarEl);
-
-    if (typeof checkNearbyFlower === "function") {
-      checkNearbyFlower();
-    }
   }
+
+  if (typeof setupGardenClickMove === "function") {
+    setupGardenClickMove();
+  }
+
+  if (typeof checkNearbyFlower === "function") {
+    checkNearbyFlower();
+  }
+}
 }
 
 function renderTodayFlower() {
@@ -259,10 +508,10 @@ function renderTodayFlower() {
 
   todayFlowerDiv.innerHTML += `
     <div class="today-flower-card">
-      <div class="today-flower-emoji">${flower.img}</div>
-      <p><strong>${flower.name}</strong></p>
-      <p>${flower.meaning}</p>
-      <p>Mood: ${flower.mood}</p>
+      <div class="today-flower-emoji">${flower.img || "🌸"}</div>
+      <p><strong>${flower.name || "Flower"}</strong></p>
+      <p>${flower.meaning || "Unknown"}</p>
+      <p>Mood: ${flower.mood || "Unknown"}</p>
       <p>Event: ${flower.event || "No event recorded"}</p>
       <p>Support: ${flower.supportCount || 0}</p>
       <p>Message: ${latestMessage}</p>
@@ -308,6 +557,28 @@ function renderTodayFlower() {
 }
 
 window.addEventListener("resize", () => {
+  renderDecorations();
   renderGarden();
   renderTodayFlower();
 });
+
+if (typeof module !== "undefined" && module.exports) {
+  module.exports = {
+    renderGarden,
+    clamp,
+    getResponsiveFlowerSize,
+    getGardenMetrics,
+    getGrassBounds,
+    boxesOverlap,
+    seededRandom,
+    getFlowerSeed,
+    isPositionInsideBounds,
+    generateStableFlowerPosition,
+    prepareFlowersOnce,
+    getScaledFlowerPosition,
+    getScaledVisitorPosition,
+    getFlowerImage,
+    renderDecorations,
+    renderRemoteVisitors
+  };
+}

@@ -9,64 +9,8 @@ let pollTimer = null;
 const POLL_INTERVAL = 1200;
 let isAddFriendSelectOpen = false;
 
-// 新增：当前选中的 flower id
+// 当前选中的 flower id
 let selectedFlowerId = null;
-
-function autoDetectMood(eventText) {
-  const text = (eventText || "").toLowerCase();
-
-  if (
-    text.includes("interview") ||
-    text.includes("good") ||
-    text.includes("happy") ||
-    text.includes("excited") ||
-    text.includes("great") ||
-    text.includes("fun") ||
-    text.includes("love")
-  ) {
-    return "happy";
-  }
-
-  if (
-    text.includes("calm") ||
-    text.includes("peace") ||
-    text.includes("quiet") ||
-    text.includes("relaxed")
-  ) {
-    return "calm";
-  }
-
-  if (
-    text.includes("tired") ||
-    text.includes("sleepy") ||
-    text.includes("exhausted") ||
-    text.includes("drained")
-  ) {
-    return "tired";
-  }
-
-  if (
-    text.includes("sad") ||
-    text.includes("cry") ||
-    text.includes("upset") ||
-    text.includes("lonely") ||
-    text.includes("miss")
-  ) {
-    return "sad";
-  }
-
-  if (
-    text.includes("stress") ||
-    text.includes("busy") ||
-    text.includes("deadline") ||
-    text.includes("anxious") ||
-    text.includes("worried")
-  ) {
-    return "stressed";
-  }
-
-  return "";
-}
 
 function updateGardenTitle(title) {
   const gardenTitle = document.getElementById("gardenTitle");
@@ -113,7 +57,6 @@ function applyViewedGardenData(gardenData) {
     return;
   }
 
-  // 不自动选最后一朵，保持“未选择”状态
   selectedFlowerId = null;
 }
 
@@ -219,6 +162,7 @@ async function refreshMineOnly() {
   updateGardenTitle(me ? `${me.name}'s Garden` : "Your Garden");
 
   updateFriendInfo();
+  renderDecorations()
   renderGarden();
   renderVisitRecords();
   renderHostVisitors(gardenData.activeVisitors || []);
@@ -256,6 +200,7 @@ async function refreshCurrentView() {
   }
 
   updateFriendInfo();
+  renderDecorations()
   renderGarden();
   renderVisitRecords();
 
@@ -667,22 +612,18 @@ function setupSubmitButton() {
 
   submitBtn.addEventListener("click", async () => {
     try {
-      let mood = "";
       const moodSelect = document.getElementById("moodSelect");
       const eventInput = document.getElementById("eventInput");
 
-      if (moodSelect) {
-        mood = moodSelect.value;
-      }
-
-      const eventText = eventInput ? eventInput.value : "";
+      const eventText = eventInput ? eventInput.value.trim() : "";
+      let mood = moodSelect ? moodSelect.value : "";
 
       if (!mood && eventText) {
-        mood = autoDetectMood(eventText);
+        mood = analyzeMoodFromText(eventText);
       }
 
       if (!mood) {
-        alert("Please choose your mood 🌼");
+        alert("Please write what happened today or choose your mood 🌼");
         return;
       }
 
@@ -886,7 +827,9 @@ async function init() {
   }
 }
 
-window.onload = init;
+if (typeof window !== "undefined") {
+  window.onload = init;
+}
 
 function showAuthMode() {
   const authSection = document.getElementById("authSection");
@@ -920,21 +863,21 @@ function showAppMode() {
   if (rightPanel) rightPanel.style.display = "block";
 
   [
-  "currentProfileSection",
-  "friendManageSection",
-  "friendsListSection",
-  "visitRecordsSection",
-  "visitorSection",
-  "todayFlower"
-].forEach((id) => {
-  const el = document.getElementById(id);
-  if (el) el.style.display = "block";
-});
+    "currentProfileSection",
+    "friendManageSection",
+    "friendsListSection",
+    "visitRecordsSection",
+    "visitorSection",
+    "todayFlower"
+  ].forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = "block";
+  });
 
-const friendSection = document.getElementById("friendSection");
-if (friendSection) {
-  friendSection.style.display = "none";
-}
+  const friendSection = document.getElementById("friendSection");
+  if (friendSection) {
+    friendSection.style.display = "none";
+  }
 
   const checkin = document.querySelector(".checkin-section");
   if (checkin) checkin.style.display = "block";
@@ -961,4 +904,60 @@ function setupAddFriendSelectLock() {
   select.addEventListener("blur", () => {
     isAddFriendSelectOpen = false;
   });
+}
+
+
+function __setMainTestState(patch) {
+  if ("currentGardenView" in patch) currentGardenView = patch.currentGardenView;
+  if ("currentViewedGardenData" in patch) currentViewedGardenData = patch.currentViewedGardenData;
+  if ("myGardenData" in patch) myGardenData = patch.myGardenData;
+  if ("currentVisitedFriendId" in patch) currentVisitedFriendId = patch.currentVisitedFriendId;
+  if ("viewMode" in patch) viewMode = patch.viewMode;
+  if ("selectedFlowerId" in patch) selectedFlowerId = patch.selectedFlowerId;
+  if ("isAddFriendSelectOpen" in patch) isAddFriendSelectOpen = patch.isAddFriendSelectOpen;
+
+  if ("currentUserProfile" in patch) {
+    currentUserProfile = patch.currentUserProfile;
+  }
+}
+
+function __getMainTestState() {
+  return {
+    currentGardenView,
+    currentViewedGardenData,
+    myGardenData,
+    currentVisitedFriendId,
+    viewMode,
+    selectedFlowerId,
+    isAddFriendSelectOpen,
+    currentUserProfile
+  };
+}
+
+if (typeof module !== "undefined" && module.exports) {
+  module.exports = {
+    updateGardenTitle,
+    updateCurrentProfileText,
+    getMyGarden,
+    getCurrentViewedUserId,
+    applyViewedGardenData,
+    applyMyGardenData,
+    updateFriendInfo,
+    renderVisitRecords,
+    renderHostVisitors,
+    showAuthMode,
+    showAppMode,
+    setupAddFriendSelectLock,
+    __setMainTestState,
+    __getMainTestState,
+    refreshSocialPanels,
+    startPolling,
+    stopPolling,
+    loadMyGarden,
+    showMyGarden,
+    setupGardenSwitchButtons,
+    setupSubmitButton,
+    setupCreateUserButton,
+    setupAddFriendButton
+  };
 }

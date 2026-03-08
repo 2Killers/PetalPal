@@ -3,6 +3,7 @@ let avatarEl = null;
 let avatarX = 120;
 let avatarY = 520;
 let activeFlowerId = null;
+let gardenClickMoveBound = false;
 
 async function leaveMessage(index) {
   const msg = prompt("Leave a blessing message 🌸");
@@ -72,6 +73,7 @@ async function deleteFlower(index) {
   if (!flower) {
     return;
   }
+  
 
   if (viewMode === "friend") {
     alert("You can only delete flowers in your own garden 🌱");
@@ -93,6 +95,10 @@ async function deleteFlower(index) {
 
     if (!response.ok) {
       throw new Error("Failed to delete flower");
+    }
+
+    if (typeof flowerPositionCache !== "undefined") {
+      flowerPositionCache.delete(flower.id);
     }
 
     await refreshCurrentView();
@@ -117,8 +123,13 @@ function createVisitorAvatar() {
   avatarEl.id = "avatar";
   avatarEl.textContent = getSelectedVisitorAvatar();
 
+  avatarEl.style.position = "absolute";
   avatarEl.style.left = `${avatarX}px`;
   avatarEl.style.top = `${avatarY}px`;
+  avatarEl.style.zIndex = "50";
+  avatarEl.style.pointerEvents = "none";
+  avatarEl.style.lineHeight = "1";
+  avatarEl.style.userSelect = "none";
 
   gardenDiv.appendChild(avatarEl);
 }
@@ -205,9 +216,11 @@ function checkNearbyFlower() {
 
 function setupGardenClickMove() {
   const gardenDiv = document.getElementById("garden");
-  if (!gardenDiv) {
+  if (!gardenDiv || gardenClickMoveBound) {
     return;
   }
+
+  gardenClickMoveBound = true;
 
   gardenDiv.addEventListener("click", async (e) => {
     if (!friendMode || !avatarEl) {
@@ -281,7 +294,7 @@ function setupFriendFlowerActions() {
   });
 }
 
-document.addEventListener("keydown", (e) => {
+function handleKeydown(e) {
   if (!friendMode) {
     return;
   }
@@ -290,4 +303,40 @@ document.addEventListener("keydown", (e) => {
   if (e.key === "ArrowDown") moveAvatar(0, 20);
   if (e.key === "ArrowLeft") moveAvatar(-20, 0);
   if (e.key === "ArrowRight") moveAvatar(20, 0);
-});
+}
+
+document.addEventListener("keydown", handleKeydown);
+
+function __setTestState(state) {
+  if ("friendMode" in state) friendMode = state.friendMode;
+  if ("avatarEl" in state) avatarEl = state.avatarEl;
+  if ("avatarX" in state) avatarX = state.avatarX;
+  if ("avatarY" in state) avatarY = state.avatarY;
+  if ("activeFlowerId" in state) activeFlowerId = state.activeFlowerId;
+}
+
+function __getTestState() {
+  return {
+    friendMode,
+    avatarEl,
+    avatarX,
+    avatarY,
+    activeFlowerId
+  };
+}
+
+if (typeof module !== "undefined") {
+  module.exports = {
+    leaveMessage,
+    supportFlower,
+    deleteFlower,
+    createVisitorAvatar,
+    moveAvatar,
+    checkNearbyFlower,
+    setupGardenClickMove,
+    setupFriendFlowerActions,
+    handleKeydown,
+    __setTestState,
+    __getTestState
+  };
+}

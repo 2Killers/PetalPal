@@ -187,23 +187,53 @@ button:active {
   min-height: 140px;
 }
 
-#garden {
-  width: 100%;
-  min-height: 760px;
-  border-radius: 32px;
-  padding: 30px;
+.garden-scene {
   position: relative;
+  width: 100%;
+  height: 760px;
+  min-height: 760px;
+  overflow: hidden;
+  border-radius: 32px;
+  background: url("/assets/background.jpg") center center / cover no-repeat;
+  border: 3px solid rgba(255, 255, 255, 0.45);
+  box-shadow: inset 0 8px 24px rgba(255, 255, 255, 0.18);
+}
+
+#garden {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  padding: 0;
   overflow: hidden;
   box-sizing: border-box;
-  background: linear-gradient(
-    to bottom,
-    #cfeeff 0%,
-    #dff5ff 52%,
-    #bfe3a2 52%,
-    #8dcb6e 100%
-  );
-  border: 3px solid rgba(255, 255, 255, 0.45);
-  box-shadow: inset 0 8px 24px rgba(255, 255, 255, 0.3);
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.sky-layer,
+.background-layer,
+.backgrass-layer,
+.frontgrass-left,
+.frontgrass-right {
+  display: none;
+}
+
+.decoration-layer,
+.flower-layer {
+  position: absolute;
+  inset: 0;
+}
+
+.decoration-layer {
+  z-index: 3;
+  pointer-events: none;
+}
+
+.flower-layer {
+  z-index: 4;
 }
 
 .flower-card {
@@ -215,222 +245,44 @@ button:active {
   box-shadow: none;
   padding: 0;
   cursor: pointer;
+  transform-origin: bottom center;
+  animation: sway 5s ease-in-out infinite;
 }
 
 .flower-shadow {
   position: absolute;
-  bottom: 8px;
+  bottom: 4px;
   left: 50%;
-  width: 42px;
-  height: 14px;
-  background: rgba(80, 110, 60, 0.22);
+  width: 62px;
+  height: 18px;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.16);
+  filter: blur(7px);
   border-radius: 50%;
-  transform: translateX(-50%);
-  filter: blur(3px);
 }
 
-.flower-emoji {
+.flower-img {
   position: absolute;
-  bottom: 12px;
   left: 50%;
+  bottom: 10px;
   transform: translateX(-50%);
-  font-size: 4.2rem;
-  line-height: 1;
-  filter: drop-shadow(0 6px 6px rgba(0, 0, 0, 0.18));
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: bottom center;
+  mix-blend-mode: multiply;
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.08));
 }
 
-.flower-tooltip {
-  display: none;
-  position: absolute;
-  bottom: 105px;
-  width: min(220px, calc(100vw - 48px));
-  max-width: 220px;
-  background: rgba(255, 255, 255, 0.96);
-  color: #4b372a;
-  padding: 12px 14px;
-  border-radius: 18px;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
-  font-size: 13px;
-  z-index: 20;
-  text-align: left;
-  box-sizing: border-box;
-}
-
-.flower-tooltip p {
-  margin: 4px 0;
-  line-height: 1.35;
-  word-break: break-word;
-}
-
-.flower-card:hover .own-tooltip {
-  display: block;
-}
-
-.flower-card.active .friend-tooltip {
-  display: block;
-}
-
-.flower-tooltip::after {
-  content: "";
-  position: absolute;
-  bottom: -10px;
-  border-width: 10px 10px 0 10px;
-  border-style: solid;
-  border-color: rgba(255, 255, 255, 0.96) transparent transparent transparent;
-}
-
-.flower-tooltip.tooltip-right::after {
-  left: 28px;
-}
-
-.flower-tooltip.tooltip-left::after {
-  right: 28px;
-}
-
-.flower-actions-inline {
-  margin-top: 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.flower-actions-inline button {
-  width: 100%;
-  margin: 0;
-  padding: 10px 12px;
-  font-size: 14px;
-  border-radius: 12px;
-}
-
-#avatar {
-  position: absolute;
-  font-size: 2.2rem;
-  z-index: 30;
-  pointer-events: none;
-  transition: left 0.18s linear, top 0.18s linear;
-}
-
-.host-visitor,
-.remote-visitor-avatar {
-  position: absolute;
-  font-size: 2.2rem;
-  z-index: 25;
-  pointer-events: none;
-}
-
-.friend-mode .checkin-section,
-.friend-mode #todayFlower {
-  display: none;
-}
-
-.friend-mode #friendInfo,
-.friend-mode #flowerActions {
-  display: block;
-}
-
-.hosted-mode #friendInfo {
-  display: none;
-}
-
-.hosted-mode #flowerActions {
-  display: block;
-}
-
-#flowerActions button {
-  width: 100%;
-}
-
-.today-flower-card {
-  background: rgba(255, 255, 255, 0.88);
-  border-radius: 18px;
-  padding: 16px;
-  margin-top: 10px;
-}
-
-.today-flower-card p {
-  margin: 6px 0;
-}
-
-.today-flower-emoji {
-  font-size: 3.5rem;
-  text-align: center;
-  margin-bottom: 10px;
-}
-
-.today-actions {
-  margin-top: 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.today-actions button {
-  margin: 0;
-}
-
-.empty-message {
-  color: #6c5a4d;
-  margin-top: 10px;
-}
-
-#friendsList {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  max-height: 320px;
-  overflow-y: auto;
-  padding-right: 4px;
-}
-
-.friend-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 12px 14px;
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.9);
-}
-
-.friend-name {
-  font-weight: bold;
-  color: #5b3f2f;
-  line-height: 1.3;
-}
-
-.friend-open-btn {
-  width: auto;
-  margin: 0;
-  padding: 8px 14px;
-  font-size: 14px;
-  border-radius: 12px;
-  flex-shrink: 0;
-}
-
-#friendsList::-webkit-scrollbar {
-  width: 8px;
-}
-
-#friendsList::-webkit-scrollbar-thumb {
-  background: rgba(141, 203, 110, 0.55);
-  border-radius: 99px;
-}
-
-#friendsList::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.visit-record-item {
-  background: rgba(255, 255, 255, 0.88);
-  border-radius: 14px;
-  padding: 10px 12px;
-  margin-bottom: 10px;
-}
-
-.visit-record-item p {
-  margin: 4px 0;
-  font-size: 14px;
-  word-break: break-word;
+@keyframes sway {
+  0% {
+    transform: rotate(-1.8deg);
+  }
+  50% {
+    transform: rotate(1.8deg);
+  }
+  100% {
+    transform: rotate(-1.8deg);
+  }
 }
 
 @media (max-width: 1400px) {
@@ -445,10 +297,6 @@ button:active {
   .right-panel {
     min-height: auto;
   }
-
-  #garden {
-    min-height: 760px;
-  }
 }
 
 @media (max-width: 900px) {
@@ -460,11 +308,6 @@ button:active {
     padding: 18px;
   }
 
-  #garden {
-    min-height: 760px;
-    padding: 22px;
-  }
-
   .flower-card {
     width: 90px;
     height: 110px;
@@ -472,6 +315,11 @@ button:active {
 
   .flower-emoji {
     font-size: 3.6rem;
+  }
+
+  .garden-scene {
+    height: 760px;
+    min-height: 760px;
   }
 }
 
@@ -508,11 +356,6 @@ button:active {
     font-size: 3rem;
   }
 
-  #garden {
-    min-height: 760px;
-    padding: 18px;
-  }
-
   .flower-card {
     width: 82px;
     height: 100px;
@@ -527,6 +370,12 @@ button:active {
   .remote-visitor-avatar {
     font-size: 2rem;
   }
+
+  .garden-scene {
+    height: 760px;
+    min-height: 760px;
+    border-radius: 24px;
+  }
 }
 
 @media (max-width: 420px) {
@@ -538,14 +387,93 @@ button:active {
     padding: 14px;
   }
 
-  #garden {
-    min-height: 760px;
-    padding: 14px;
-    border-radius: 24px;
-  }
-
   .flower-tooltip {
     width: min(170px, calc(100vw - 28px));
     max-width: 170px;
   }
+
+  .garden-scene {
+    border-radius: 24px;
+  }
+}
+
+.flower-tooltip {
+  position: absolute;
+  bottom: calc(100% + 14px);
+  width: 220px;
+  max-width: min(220px, calc(100vw - 40px));
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.94);
+  color: #4b372a;
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.14);
+  font-size: 13px;
+  line-height: 1.45;
+  z-index: 30;
+
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+
+.flower-card:hover .flower-tooltip.own-tooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(-2px);
+  pointer-events: none;
+}
+
+.flower-card.active .flower-tooltip.friend-tooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(-2px);
+  pointer-events: auto;
+}
+
+.flower-card.active {
+  z-index: 80 !important;
+}
+
+.flower-tooltip p {
+  margin: 4px 0;
+}
+
+.flower-tooltip::after {
+  content: "";
+  position: absolute;
+  bottom: -10px;
+  width: 18px;
+  height: 18px;
+  background: rgba(255, 255, 255, 0.94);
+  transform: rotate(45deg);
+  box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.04);
+}
+
+.flower-tooltip.tooltip-right::after {
+  left: 26px;
+}
+
+.flower-tooltip.tooltip-left::after {
+  right: 26px;
+}
+
+#avatar,
+.host-visitor,
+.remote-visitor-avatar {
+  position: absolute;
+  z-index: 50;
+  line-height: 1;
+  user-select: none;
+}
+
+#avatar {
+  pointer-events: none;
+  font-size: 2rem;
+}
+
+.host-visitor,
+.remote-visitor-avatar {
+  font-size: 2rem;
+  pointer-events: none;
 }

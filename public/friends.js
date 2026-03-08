@@ -1,4 +1,9 @@
-const params = new URLSearchParams(window.location.search);
+const search =
+  typeof window !== "undefined" && window.location
+    ? window.location.search
+    : "";
+
+const params = new URLSearchParams(search);
 
 let currentUserId = params.get("userId") || null;
 let currentUserProfile = null;
@@ -143,4 +148,29 @@ async function leaveVisit(hostUserId, visitorUserId) {
         ? getSelectedVisitorAvatar()
         : "🦋"
   });
+}
+if (typeof module !== "undefined") {
+  module.exports = {
+    setCurrentUserId,
+    clearCurrentUserId,
+    getCurrentUserId,
+    getCurrentUser,
+    apiGet,
+    apiPost,
+    apiDelete,
+    fetchAllUsers,
+    fetchUser,
+    fetchFriends,
+    fetchGarden,
+    createUser,
+    addFriend,
+    removeFriend,
+    createFlowerForUser,
+    supportFlowerForUser,
+    messageFlowerForUser,
+    deleteFlowerForUser,
+    startVisit,
+    moveVisit,
+    leaveVisit
+  };
 }

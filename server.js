@@ -6,6 +6,7 @@ const { createFlower, addSupport, addMessage } = require("./logic/gardenLogic");
 const VisitRecord = require("./models/VisitRecord");
 const User = require("./models/User");
 const users = require("./data/users");
+const { predictMood, loadMoodModel } = require("./moodClassifier");
 
 const app = express();
 const PORT = 3000;
@@ -366,6 +367,30 @@ app.post("/leave", (req, res) => {
     visitRecords: hostGarden.getVisitRecords()
   });
 });
+
+app.post("/analyze-mood", async (req, res) => {
+  try {
+    const { text } = req.body;
+
+    if (typeof text !== "string" || !text.trim()) {
+      return res.status(400).json({ error: "Text is required" });
+    }
+
+    const mood = await predictMood(text);
+    res.json({ mood });
+  } catch (err) {
+    console.error("Mood analysis error:", err);
+    res.status(500).json({ error: "Failed to analyze mood" });
+  }
+});
+
+loadMoodModel()
+  .then(() => {
+    console.log("Mood model loaded.");
+  })
+  .catch((err) => {
+    console.error("Failed to load mood model:", err);
+  });
 
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`Server running on http://localhost:${PORT}`);
