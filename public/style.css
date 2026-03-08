@@ -1,0 +1,445 @@
+body {
+  font-family: "Trebuchet MS", Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  color: #3d352e;
+  background: linear-gradient(to bottom, #dff3ff 0%, #f6fbe7 45%, #d7efc2 100%);
+  min-height: 100vh;
+}
+
+header {
+  text-align: center;
+  padding: 28px 20px 10px;
+}
+
+header h1 {
+  font-size: clamp(2.2rem, 4vw, 3rem);
+  margin-bottom: 10px;
+  color: #5b3f2f;
+}
+
+header p {
+  font-size: clamp(1rem, 2vw, 1.1rem);
+  color: #6c5a4d;
+}
+
+main {
+  width: min(1180px, 100%);
+  margin: 0 auto;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.game-layout {
+  display: grid;
+  grid-template-columns: minmax(260px, 320px) minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+
+.left-panel {
+  position: sticky;
+  top: 20px;
+  min-width: 0;
+}
+
+.right-panel {
+  min-height: 700px;
+  min-width: 0;
+}
+
+.garden-title {
+  margin-top: 10px;
+  margin-bottom: 18px;
+  font-size: clamp(1.7rem, 3vw, 2rem);
+  color: #5b3f2f;
+}
+
+section {
+  border-radius: 24px;
+  padding: 20px;
+  margin-bottom: 24px;
+  box-sizing: border-box;
+}
+
+.checkin-section {
+  background: rgba(255, 248, 240, 0.92);
+  box-shadow: 0 8px 24px rgba(95, 74, 52, 0.12);
+  border: 2px solid rgba(255, 255, 255, 0.7);
+}
+
+#authSection,
+#currentProfileSection,
+#friendManageSection,
+#visitorSection,
+#todayFlower,
+#friendSection,
+#friendInfo,
+#flowerActions,
+#friendsListSection,
+#visitRecordsSection {
+  background: rgba(255, 255, 255, 0.75);
+  box-shadow: 0 8px 24px rgba(95, 74, 52, 0.1);
+}
+
+#authSection h3,
+#signupSection h3 {
+  margin-top: 0;
+  color: #5b3f2f;
+}
+
+#userPickerBlock {
+  margin-bottom: 18px;
+}
+
+#userList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+#userList button {
+  margin: 0;
+}
+
+#signupSection {
+  margin-top: 8px;
+  padding-top: 8px;
+}
+
+#currentProfileText {
+  margin-top: 8px;
+  font-weight: bold;
+  color: #5b3f2f;
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+textarea,
+select,
+input {
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 10px;
+  margin-bottom: 14px;
+  padding: 14px;
+  font-size: 16px;
+  border-radius: 16px;
+  border: 2px solid #d8cabd;
+  background: rgba(255, 255, 255, 0.92);
+  color: #4b372a;
+}
+
+textarea {
+  min-height: 110px;
+  resize: vertical;
+}
+
+button {
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  padding: 14px;
+  font-size: 18px;
+  border-radius: 18px;
+  border: none;
+  background: linear-gradient(to right, #b8e39f, #d6f0b4);
+  color: #4b372a;
+  cursor: pointer;
+  font-weight: bold;
+  box-shadow: 0 4px 10px rgba(91, 132, 67, 0.18);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px rgba(91, 132, 67, 0.22);
+}
+
+button:active {
+  transform: translateY(0);
+}
+
+#selectedVisitorText {
+  margin-top: 8px;
+  font-weight: bold;
+  color: #5b3f2f;
+}
+
+#visitorChoices {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+#visitorChoices button {
+  flex: 1;
+  min-width: 90px;
+}
+
+.visitor-choice.active {
+  outline: 3px solid #8ecf6f;
+}
+
+#todayFlower {
+  min-height: 140px;
+}
+
+.garden-scene {
+  position: relative;
+  width: 100%;
+  height: 760px;
+  min-height: 760px;
+  overflow: hidden;
+  border-radius: 32px;
+  background: #dff4ff;
+  border: 3px solid rgba(255, 255, 255, 0.45);
+  box-shadow: inset 0 8px 24px rgba(255, 255, 255, 0.3);
+}
+
+#garden {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  padding: 0;
+  overflow: hidden;
+  box-sizing: border-box;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.sky-layer,
+.background-layer,
+.backgrass-layer,
+.decoration-layer,
+.flower-layer,
+.frontgrass-left,
+.frontgrass-right {
+  position: absolute;
+}
+
+.sky-layer {
+  inset: 0;
+  background: url("/assets/sky.JPEG") center top / cover no-repeat;
+  z-index: 0;
+}
+
+/* 不再用整张 background.JPEG 当草地 */
+.background-layer {
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 52%;
+  z-index: 1;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(255,255,255,0.10), transparent 18%),
+    radial-gradient(circle at 75% 30%, rgba(255,255,255,0.08), transparent 20%),
+    linear-gradient(to bottom, #b8dd8d 0%, #98cf6f 35%, #7fbe58 100%);
+}
+
+.backgrass-layer {
+  left: 0;
+  right: 0;
+  bottom: 39%;
+  height: 14%;
+  background: url("/assets/backGrass4.JPEG") center bottom / cover no-repeat;
+  z-index: 2;
+  pointer-events: none;
+  mix-blend-mode: multiply;
+  opacity: 0.9;
+}
+
+.decoration-layer {
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.flower-layer {
+  inset: 0;
+  z-index: 4;
+}
+
+.frontgrass-left,
+.frontgrass-right {
+  bottom: 0;
+  width: 22%;
+  height: 18%;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: bottom center;
+  z-index: 5;
+  pointer-events: none;
+  mix-blend-mode: multiply;
+  opacity: 0.95;
+}
+
+.frontgrass-left {
+  left: 0;
+  background-image: url("/assets/frontGrass1.JPEG");
+}
+
+.frontgrass-right {
+  right: 0;
+  background-image: url("/assets/frontGrass2.JPEG");
+}
+
+.flower-card {
+  position: absolute;
+  width: 100px;
+  height: 120px;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+  cursor: pointer;
+  transform-origin: bottom center;
+  animation: sway 5s ease-in-out infinite;
+}
+
+.flower-shadow {
+  position: absolute;
+  bottom: 2px;
+  left: 50%;
+  width: 48px;
+  height: 14px;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.16);
+  filter: blur(6px);
+  border-radius: 50%;
+}
+
+.flower-img {
+  position: absolute;
+  left: 50%;
+  bottom: 10px;
+  transform: translateX(-50%);
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: bottom center;
+  mix-blend-mode: multiply;
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.08));
+}
+
+@keyframes sway {
+  0% { transform: rotate(-1.8deg); }
+  50% { transform: rotate(1.8deg); }
+  100% { transform: rotate(-1.8deg); }
+}
+
+@media (max-width: 1400px) {
+  .game-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .left-panel {
+    position: static;
+  }
+
+  .right-panel {
+    min-height: auto;
+  }
+}
+
+@media (max-width: 900px) {
+  main {
+    padding: 16px;
+  }
+
+  section {
+    padding: 18px;
+  }
+
+  .flower-card {
+    width: 90px;
+    height: 110px;
+  }
+
+  .flower-emoji {
+    font-size: 3.6rem;
+  }
+
+  .garden-scene {
+    height: 760px;
+    min-height: 760px;
+  }
+}
+
+@media (max-width: 640px) {
+  main {
+    padding: 14px;
+  }
+
+  header {
+    padding: 22px 16px 8px;
+  }
+
+  .garden-title {
+    font-size: 1.7rem;
+  }
+
+  section {
+    padding: 16px;
+    border-radius: 20px;
+  }
+
+  button {
+    font-size: 16px;
+    padding: 12px;
+  }
+
+  .flower-tooltip {
+    width: min(190px, calc(100vw - 36px));
+    max-width: 190px;
+    font-size: 12px;
+  }
+
+  .today-flower-emoji {
+    font-size: 3rem;
+  }
+
+  .flower-card {
+    width: 82px;
+    height: 100px;
+  }
+
+  .flower-emoji {
+    font-size: 3.1rem;
+  }
+
+  #avatar,
+  .host-visitor,
+  .remote-visitor-avatar {
+    font-size: 2rem;
+  }
+
+  .garden-scene {
+    height: 760px;
+    min-height: 760px;
+    border-radius: 24px;
+  }
+}
+
+@media (max-width: 420px) {
+  main {
+    padding: 10px;
+  }
+
+  section {
+    padding: 14px;
+  }
+
+  .flower-tooltip {
+    width: min(170px, calc(100vw - 28px));
+    max-width: 170px;
+  }
+
+  .garden-scene {
+    border-radius: 24px;
+  }
+}
